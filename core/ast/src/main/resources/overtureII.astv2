@@ -600,6 +600,7 @@ stm {-> package='org.overture.ast.statements'
     |   {if} [ifExp]:exp [thenStm]:stm [elseIf]:stm.elseIf* [elseStm]:stm
     |   {letBeSt} [bind]:multipleBind [suchThat]:exp [statement]:stm (def):definition.multiBindList
     |	{let} [localDefs]:definition* [statement]:stm
+    |	{def} [localDefs]:definition* [statement]:stm
     |   {notYetSpecified} [opname]:LexNameToken [args]:exp* /* FIXME -- these params are probably useless */
     |   {return} [expression]:exp
     |   #SimpleBlock

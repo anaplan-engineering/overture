@@ -1,23 +1,9 @@
 package org.overture.codegen.analysis.vdm;
 
-import java.util.*;
-
 import org.apache.log4j.Logger;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
-import org.overture.ast.definitions.AClassClassDefinition;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.definitions.AInstanceVariableDefinition;
-import org.overture.ast.definitions.ANamedTraceDefinition;
-import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.ASystemClassDefinition;
-import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.AValueDefinition;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.definitions.SFunctionDefinition;
-import org.overture.ast.definitions.SOperationDefinition;
+import org.overture.ast.definitions.*;
 import org.overture.ast.definitions.traces.ALetBeStBindingTraceDefinition;
 import org.overture.ast.expressions.*;
 import org.overture.ast.intf.lex.ILexLocation;
@@ -29,25 +15,15 @@ import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIdentifierStateDesignator;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.PStm;
+import org.overture.ast.statements.*;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.PType;
 import org.overture.codegen.ir.TempVarNameGen;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
 import org.overture.typechecker.assistant.definition.SFunctionDefinitionAssistantTC;
+
+import java.util.*;
 
 /**
  * This analysis is used to compute new names for variables that shadow other variables. A renaming is suggested if a
@@ -208,6 +184,25 @@ public class VarShadowingRenameCollector extends DepthFirstAnalysisAdaptor
 
 	@Override
 	public void caseALetStm(ALetStm node) throws AnalysisException
+	{
+		if (!proceed(node))
+		{
+			return;
+		}
+
+		DefinitionInfo defInfo = new DefinitionInfo(node.getLocalDefs(), af);
+
+		visitDefs(defInfo.getNodeDefs());
+
+		openScope(defInfo, node);
+
+		node.getStatement().apply(this);
+
+		endScope(defInfo);
+	}
+
+	@Override
+	public void caseADefStm(ADefStm node) throws AnalysisException
 	{
 		if (!proceed(node))
 		{

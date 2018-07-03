@@ -4,32 +4,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AAlwaysStm;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.AAtomicStm;
-import org.overture.ast.statements.ACallObjectStm;
-import org.overture.ast.statements.ACallStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADurationStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AExitStm;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.AReturnStm;
-import org.overture.ast.statements.AStartStm;
-import org.overture.ast.statements.AStopStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.statements.SSimpleBlockStm;
+import org.overture.ast.statements.*;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 
 /***************************************
@@ -240,6 +215,19 @@ public class StatementExpressionFinder extends
 
 	@Override
 	public PExp caseALetStm(ALetStm stm, Integer lineno)
+			throws AnalysisException
+	{
+		PExp found = af.createPDefinitionListAssistant().findExpression(stm.getLocalDefs(), lineno);
+		if (found != null)
+		{
+			return found;
+		}
+
+		return stm.getStatement().apply(THIS, lineno);
+	}
+
+	@Override
+	public PExp caseADefStm(ADefStm stm, Integer lineno)
 			throws AnalysisException
 	{
 		PExp found = af.createPDefinitionListAssistant().findExpression(stm.getLocalDefs(), lineno);

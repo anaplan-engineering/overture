@@ -1,9 +1,5 @@
 package org.overture.interpreter.eval;
 
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Vector;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -14,50 +10,7 @@ import org.overture.ast.lex.Dialect;
 import org.overture.ast.patterns.ASeqBind;
 import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ATypeBind;
-import org.overture.ast.statements.AAlwaysStm;
-import org.overture.ast.statements.AApplyObjectDesignator;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.AAtomicStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACallObjectStm;
-import org.overture.ast.statements.ACallStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.AClassInvariantStm;
-import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADurationStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AErrorStm;
-import org.overture.ast.statements.AExitStm;
-import org.overture.ast.statements.AFieldObjectDesignator;
-import org.overture.ast.statements.AFieldStateDesignator;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIdentifierObjectDesignator;
-import org.overture.ast.statements.AIdentifierStateDesignator;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.AMapSeqStateDesignator;
-import org.overture.ast.statements.ANewObjectDesignator;
-import org.overture.ast.statements.ANonDeterministicSimpleBlockStm;
-import org.overture.ast.statements.ANotYetSpecifiedStm;
-import org.overture.ast.statements.APeriodicStm;
-import org.overture.ast.statements.AReturnStm;
-import org.overture.ast.statements.ASelfObjectDesignator;
-import org.overture.ast.statements.ASkipStm;
-import org.overture.ast.statements.ASpecificationStm;
-import org.overture.ast.statements.ASporadicStm;
-import org.overture.ast.statements.AStartStm;
-import org.overture.ast.statements.AStopStm;
-import org.overture.ast.statements.ASubclassResponsibilityStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.statements.SSimpleBlockStm;
+import org.overture.ast.statements.*;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 import org.overture.config.Release;
@@ -65,41 +18,14 @@ import org.overture.config.Settings;
 import org.overture.interpreter.debug.BreakpointManager;
 import org.overture.interpreter.messages.rtlog.RTExtendedTextMessage;
 import org.overture.interpreter.messages.rtlog.RTLogger;
-import org.overture.interpreter.runtime.Breakpoint;
-import org.overture.interpreter.runtime.ClassInterpreter;
-import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ContextException;
-import org.overture.interpreter.runtime.ExitException;
-import org.overture.interpreter.runtime.ObjectContext;
-import org.overture.interpreter.runtime.PatternMatchException;
-import org.overture.interpreter.runtime.RootContext;
-import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.runtime.VdmRuntime;
-import org.overture.interpreter.runtime.VdmRuntimeError;
-import org.overture.interpreter.scheduler.BasicSchedulableThread;
-import org.overture.interpreter.scheduler.ISchedulableThread;
-import org.overture.interpreter.scheduler.ObjectThread;
-import org.overture.interpreter.scheduler.PeriodicThread;
-import org.overture.interpreter.scheduler.SharedStateListner;
-import org.overture.interpreter.values.BooleanValue;
-import org.overture.interpreter.values.FunctionValue;
-import org.overture.interpreter.values.IntegerValue;
-import org.overture.interpreter.values.MapValue;
-import org.overture.interpreter.values.ObjectValue;
-import org.overture.interpreter.values.OperationValue;
-import org.overture.interpreter.values.RecordValue;
-import org.overture.interpreter.values.SeqValue;
-import org.overture.interpreter.values.SetValue;
-import org.overture.interpreter.values.UndefinedValue;
-import org.overture.interpreter.values.UpdatableValue;
-import org.overture.interpreter.values.Value;
-import org.overture.interpreter.values.ValueList;
-import org.overture.interpreter.values.ValueListenerList;
-import org.overture.interpreter.values.ValueMap;
-import org.overture.interpreter.values.ValueSet;
-import org.overture.interpreter.values.VoidReturnValue;
-import org.overture.interpreter.values.VoidValue;
+import org.overture.interpreter.runtime.*;
+import org.overture.interpreter.scheduler.*;
+import org.overture.interpreter.values.*;
 import org.overture.parser.config.Properties;
+
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Vector;
 
 public class StatementEvaluator extends DelegateExpressionEvaluator
 {
@@ -806,6 +732,14 @@ public class StatementEvaluator extends DelegateExpressionEvaluator
 	public Value caseALetStm(ALetStm node, Context ctxt)
 			throws AnalysisException
 	{
+		return evalLet(node, node.getLocation(), node.getLocalDefs(), node.getStatement(), "statement", ctxt);
+	}
+
+	@Override
+	public Value caseADefStm(ADefStm node, Context ctxt)
+			throws AnalysisException
+	{
+		// rather than duplicate - just delegate to let evaluation
 		return evalLet(node, node.getLocation(), node.getLocalDefs(), node.getStatement(), "statement", ctxt);
 	}
 

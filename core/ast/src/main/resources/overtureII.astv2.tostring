@@ -218,7 +218,8 @@ import org.overture.ast.util.ToStringUtil;
 //%stm->#LetDef = "let " [localDefs]  " in " [statement]
 //%stm->#LetDef->def = "def " + $Utils.listToString($[localDefs]$)$ + " in " [statement]
 %stm->Let = "let " + $Utils.listToString($[localDefs]$)$ + " in " [statement]
-%stm->notYetSpecified = "is not yet specified" 
+%stm->Def = "def " + $Utils.listToString($[localDefs]$)$ + " in " [statement]
+%stm->notYetSpecified = "is not yet specified"
 %stm->return = "return" + $($[expression]$ == null ? "" : " (" + $[expression]$ + ")")$
 %stm->#SimpleBlock = ""+$ToStringUtil.getSimpleBlockString(this)$ 
 %stm->#SimpleBlock->block = ""+$ToStringUtil.getBlockSimpleBlockString(this)$

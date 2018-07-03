@@ -21,20 +21,9 @@
  */
 package org.overture.typechecker.visitor;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-import java.util.Map.Entry;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.definitions.AImplicitOperationDefinition;
-import org.overture.ast.definitions.AInstanceVariableDefinition;
-import org.overture.ast.definitions.AMultiBindListDefinition;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.ABooleanConstExp;
 import org.overture.ast.expressions.ASelfExp;
 import org.overture.ast.expressions.AVariableExp;
@@ -44,73 +33,21 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.Dialect;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.lex.LexStringToken;
-import org.overture.ast.patterns.ADefPatternBind;
-import org.overture.ast.patterns.AExpressionPattern;
-import org.overture.ast.patterns.ASetBind;
-import org.overture.ast.patterns.ATypeBind;
-import org.overture.ast.patterns.PBind;
-import org.overture.ast.statements.AAlwaysStm;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.AAtomicStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACallObjectStm;
-import org.overture.ast.statements.ACallStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.AClassInvariantStm;
-import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADurationStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AErrorCase;
-import org.overture.ast.statements.AErrorStm;
-import org.overture.ast.statements.AExitStm;
-import org.overture.ast.statements.AExternalClause;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIdentifierStateDesignator;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.ANonDeterministicSimpleBlockStm;
-import org.overture.ast.statements.ANotYetSpecifiedStm;
-import org.overture.ast.statements.APeriodicStm;
-import org.overture.ast.statements.AReturnStm;
-import org.overture.ast.statements.ASkipStm;
-import org.overture.ast.statements.ASpecificationStm;
-import org.overture.ast.statements.ASporadicStm;
-import org.overture.ast.statements.AStartStm;
-import org.overture.ast.statements.AStopStm;
-import org.overture.ast.statements.ASubclassResponsibilityStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.statements.PStateDesignator;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.statements.SSimpleBlockStm;
+import org.overture.ast.patterns.*;
+import org.overture.ast.statements.*;
 import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.types.ABooleanBasicType;
-import org.overture.ast.types.AClassType;
-import org.overture.ast.types.AFunctionType;
-import org.overture.ast.types.AOperationType;
-import org.overture.ast.types.SSetType;
-import org.overture.ast.types.AUnionType;
-import org.overture.ast.types.AUnknownType;
-import org.overture.ast.types.AVoidReturnType;
-import org.overture.ast.types.AVoidType;
-import org.overture.ast.types.PType;
+import org.overture.ast.types.*;
 import org.overture.ast.util.PTypeSet;
 import org.overture.config.Settings;
-import org.overture.typechecker.Environment;
-import org.overture.typechecker.FlatCheckedEnvironment;
-import org.overture.typechecker.FlatEnvironment;
-import org.overture.typechecker.PrivateClassEnvironment;
-import org.overture.typechecker.PublicClassEnvironment;
-import org.overture.typechecker.TypeCheckInfo;
-import org.overture.typechecker.TypeCheckerErrors;
+import org.overture.typechecker.*;
 import org.overture.typechecker.assistant.type.AClassTypeAssistantTC;
 import org.overture.typechecker.utilities.type.QualifiedDefinition;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Vector;
 
 public class TypeCheckerStmVisitor extends AbstractTypeCheckVisitor
 {
@@ -658,10 +595,16 @@ public class TypeCheckerStmVisitor extends AbstractTypeCheckVisitor
 		return node.getStatement().apply(THIS, question);
 	}
 
-	// TODO: Missing the other DefStatement
-
 	@Override
 	public PType caseALetStm(ALetStm node, TypeCheckInfo question)
+			throws AnalysisException
+	{
+		node.setType(typeCheckLet(node, node.getLocalDefs(),node.getStatement(),question));
+		return node.getType();
+	}
+
+	@Override
+	public PType caseADefStm(ADefStm node, TypeCheckInfo question)
 			throws AnalysisException
 	{
 		node.setType(typeCheckLet(node, node.getLocalDefs(),node.getStatement(),question));

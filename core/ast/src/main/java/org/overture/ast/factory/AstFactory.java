@@ -21,213 +21,34 @@
  */
 package org.overture.ast.factory;
 
+import org.overture.ast.assistant.AstAssistantFactory;
+import org.overture.ast.assistant.IAstAssistantFactory;
+import org.overture.ast.definitions.*;
+import org.overture.ast.definitions.relations.AEqRelation;
+import org.overture.ast.definitions.relations.AOrdRelation;
+import org.overture.ast.definitions.traces.*;
+import org.overture.ast.expressions.*;
+import org.overture.ast.intf.lex.*;
+import org.overture.ast.lex.*;
+import org.overture.ast.messages.InternalException;
+import org.overture.ast.modules.*;
+import org.overture.ast.node.tokens.TAsync;
+import org.overture.ast.node.tokens.TStatic;
+import org.overture.ast.patterns.*;
+import org.overture.ast.statements.*;
+import org.overture.ast.typechecker.ClassDefinitionSettings;
+import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.*;
+import org.overture.ast.util.ClonableFile;
+import org.overture.ast.util.ClonableString;
+import org.overture.ast.util.Utils;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-
-import org.overture.ast.assistant.AstAssistantFactory;
-import org.overture.ast.assistant.IAstAssistantFactory;
-import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.AClassClassDefinition;
-import org.overture.ast.definitions.AClassInvariantDefinition;
-import org.overture.ast.definitions.AEqualsDefinition;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.definitions.AExternalDefinition;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
-import org.overture.ast.definitions.AImplicitOperationDefinition;
-import org.overture.ast.definitions.AImportedDefinition;
-import org.overture.ast.definitions.AInheritedDefinition;
-import org.overture.ast.definitions.AInstanceVariableDefinition;
-import org.overture.ast.definitions.ALocalDefinition;
-import org.overture.ast.definitions.AMultiBindListDefinition;
-import org.overture.ast.definitions.AMutexSyncDefinition;
-import org.overture.ast.definitions.ANamedTraceDefinition;
-import org.overture.ast.definitions.APerSyncDefinition;
-import org.overture.ast.definitions.APrivateAccess;
-import org.overture.ast.definitions.ARenamedDefinition;
-import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.ASystemClassDefinition;
-import org.overture.ast.definitions.AThreadDefinition;
-import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.AUntypedDefinition;
-import org.overture.ast.definitions.AValueDefinition;
-import org.overture.ast.definitions.PAccess;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.definitions.relations.AEqRelation;
-import org.overture.ast.definitions.relations.AOrdRelation;
-import org.overture.ast.definitions.traces.AApplyExpressionTraceCoreDefinition;
-import org.overture.ast.definitions.traces.ABracketedExpressionTraceCoreDefinition;
-import org.overture.ast.definitions.traces.AConcurrentExpressionTraceCoreDefinition;
-import org.overture.ast.definitions.traces.ALetBeStBindingTraceDefinition;
-import org.overture.ast.definitions.traces.ALetDefBindingTraceDefinition;
-import org.overture.ast.definitions.traces.ARepeatTraceDefinition;
-import org.overture.ast.definitions.traces.ATraceDefinitionTerm;
-import org.overture.ast.definitions.traces.PTraceCoreDefinition;
-import org.overture.ast.definitions.traces.PTraceDefinition;
-import org.overture.ast.expressions.*;
-import org.overture.ast.intf.lex.ILexIdentifierToken;
-import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.intf.lex.ILexQuoteToken;
-import org.overture.ast.intf.lex.ILexStringToken;
-import org.overture.ast.intf.lex.ILexToken;
-import org.overture.ast.lex.LexBooleanToken;
-import org.overture.ast.lex.LexCharacterToken;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexIntegerToken;
-import org.overture.ast.lex.LexKeywordToken;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameList;
-import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.lex.LexQuoteToken;
-import org.overture.ast.lex.LexRealToken;
-import org.overture.ast.lex.LexStringToken;
-import org.overture.ast.lex.LexToken;
-import org.overture.ast.lex.VDMToken;
-import org.overture.ast.messages.InternalException;
-import org.overture.ast.modules.AAllExport;
-import org.overture.ast.modules.AAllImport;
-import org.overture.ast.modules.AFromModuleImports;
-import org.overture.ast.modules.AFunctionExport;
-import org.overture.ast.modules.AFunctionValueImport;
-import org.overture.ast.modules.AModuleExports;
-import org.overture.ast.modules.AModuleImports;
-import org.overture.ast.modules.AModuleModules;
-import org.overture.ast.modules.AOperationExport;
-import org.overture.ast.modules.AOperationValueImport;
-import org.overture.ast.modules.ATypeExport;
-import org.overture.ast.modules.ATypeImport;
-import org.overture.ast.modules.AValueExport;
-import org.overture.ast.modules.AValueValueImport;
-import org.overture.ast.modules.PExport;
-import org.overture.ast.modules.PImport;
-import org.overture.ast.node.tokens.TAsync;
-import org.overture.ast.node.tokens.TStatic;
-import org.overture.ast.patterns.ABooleanPattern;
-import org.overture.ast.patterns.ACharacterPattern;
-import org.overture.ast.patterns.AConcatenationPattern;
-import org.overture.ast.patterns.ADefPatternBind;
-import org.overture.ast.patterns.AExpressionPattern;
-import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.AIgnorePattern;
-import org.overture.ast.patterns.AIntegerPattern;
-import org.overture.ast.patterns.AMapPattern;
-import org.overture.ast.patterns.AMapUnionPattern;
-import org.overture.ast.patterns.AMapletPatternMaplet;
-import org.overture.ast.patterns.ANamePatternPair;
-import org.overture.ast.patterns.ANilPattern;
-import org.overture.ast.patterns.AObjectPattern;
-import org.overture.ast.patterns.APatternListTypePair;
-import org.overture.ast.patterns.APatternTypePair;
-import org.overture.ast.patterns.AQuotePattern;
-import org.overture.ast.patterns.ARealPattern;
-import org.overture.ast.patterns.ARecordPattern;
-import org.overture.ast.patterns.ASeqBind;
-import org.overture.ast.patterns.ASeqMultipleBind;
-import org.overture.ast.patterns.ASeqPattern;
-import org.overture.ast.patterns.ASetBind;
-import org.overture.ast.patterns.ASetMultipleBind;
-import org.overture.ast.patterns.ASetPattern;
-import org.overture.ast.patterns.AStringPattern;
-import org.overture.ast.patterns.ATuplePattern;
-import org.overture.ast.patterns.ATypeBind;
-import org.overture.ast.patterns.ATypeMultipleBind;
-import org.overture.ast.patterns.AUnionPattern;
-import org.overture.ast.patterns.PBind;
-import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AAlwaysStm;
-import org.overture.ast.statements.AApplyObjectDesignator;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.AAtomicStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACallObjectStm;
-import org.overture.ast.statements.ACallStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.AClassInvariantStm;
-import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADurationStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AErrorCase;
-import org.overture.ast.statements.AErrorStm;
-import org.overture.ast.statements.AExitStm;
-import org.overture.ast.statements.AExternalClause;
-import org.overture.ast.statements.AFieldObjectDesignator;
-import org.overture.ast.statements.AFieldStateDesignator;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIdentifierObjectDesignator;
-import org.overture.ast.statements.AIdentifierStateDesignator;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.AMapSeqStateDesignator;
-import org.overture.ast.statements.ANewObjectDesignator;
-import org.overture.ast.statements.ANonDeterministicSimpleBlockStm;
-import org.overture.ast.statements.ANotYetSpecifiedStm;
-import org.overture.ast.statements.APeriodicStm;
-import org.overture.ast.statements.AReturnStm;
-import org.overture.ast.statements.ASelfObjectDesignator;
-import org.overture.ast.statements.ASkipStm;
-import org.overture.ast.statements.ASpecificationStm;
-import org.overture.ast.statements.ASporadicStm;
-import org.overture.ast.statements.AStartStm;
-import org.overture.ast.statements.AStopStm;
-import org.overture.ast.statements.ASubclassResponsibilityStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.statements.PObjectDesignator;
-import org.overture.ast.statements.PStateDesignator;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.typechecker.ClassDefinitionSettings;
-import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.typechecker.Pass;
-import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
-import org.overture.ast.types.ABooleanBasicType;
-import org.overture.ast.types.ABracketType;
-import org.overture.ast.types.ACharBasicType;
-import org.overture.ast.types.AClassType;
-import org.overture.ast.types.AFieldField;
-import org.overture.ast.types.AFunctionType;
-import org.overture.ast.types.AInMapMapType;
-import org.overture.ast.types.AIntNumericBasicType;
-import org.overture.ast.types.AMapMapType;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.ANatNumericBasicType;
-import org.overture.ast.types.ANatOneNumericBasicType;
-import org.overture.ast.types.AOperationType;
-import org.overture.ast.types.AOptionalType;
-import org.overture.ast.types.AParameterType;
-import org.overture.ast.types.AProductType;
-import org.overture.ast.types.AQuoteType;
-import org.overture.ast.types.ARationalNumericBasicType;
-import org.overture.ast.types.ARealNumericBasicType;
-import org.overture.ast.types.ARecordInvariantType;
-import org.overture.ast.types.ASeq1SeqType;
-import org.overture.ast.types.ASeqSeqType;
-import org.overture.ast.types.ASet1SetType;
-import org.overture.ast.types.ASetSetType;
-import org.overture.ast.types.ATokenBasicType;
-import org.overture.ast.types.AUndefinedType;
-import org.overture.ast.types.AUnionType;
-import org.overture.ast.types.AUnknownType;
-import org.overture.ast.types.AUnresolvedType;
-import org.overture.ast.types.AVoidReturnType;
-import org.overture.ast.types.AVoidType;
-import org.overture.ast.types.PType;
-import org.overture.ast.types.SBasicType;
-import org.overture.ast.types.SInvariantType;
-import org.overture.ast.util.ClonableFile;
-import org.overture.ast.util.ClonableString;
-import org.overture.ast.util.Utils;
 
 @SuppressWarnings("deprecation")
 public class AstFactory
@@ -622,7 +443,7 @@ public class AstFactory
 		List<PDefinition> defsList = new LinkedList<PDefinition>();
 		defsList.add(result);
 		type.getDefinitions().add(result);
-		
+
 		type.setInstantiated(typeParams == null || typeParams.isEmpty() ? null : false);
 
 		return result;
@@ -944,7 +765,7 @@ public class AstFactory
 
 		result.setPattern(null);
 		result.setTypebind(null);
-		
+
 		if (bind instanceof ASetBind)
 		{
 			result.setSetbind((ASetBind) bind);
@@ -953,7 +774,7 @@ public class AstFactory
 		{
 			result.setSeqbind((ASeqBind) bind);
 		}
-		
+
 		result.setTest(test);
 
 		return result;
@@ -1056,7 +877,7 @@ public class AstFactory
 
 		result.setOpname(opname);
 		result.setGuard(guard);
-		
+
 		if(guard != null)
 		{
 			guard.parent(result);
@@ -1137,7 +958,7 @@ public class AstFactory
 	{
 		return newAAccessSpecifierAccessSpecifier(access, isStatic, isAsync, false);
 	}
-	
+
 	public static AAccessSpecifierAccessSpecifier newAAccessSpecifierAccessSpecifier(
 			PAccess access, boolean isStatic, boolean isAsync, boolean isPure)
 	{
@@ -1933,7 +1754,7 @@ public class AstFactory
 		initExpression(result, start);
 
 		result.setFirst(first);
-		
+
 		if (bind instanceof ASetBind)
 		{
 			result.setSetBind((ASetBind) bind);
@@ -1942,7 +1763,7 @@ public class AstFactory
 		{
 			result.setSeqBind((ASeqBind) bind);
 		}
-		
+
 		result.setPredicate(predicate);
 
 		return result;
@@ -2232,7 +2053,7 @@ public class AstFactory
 
 	/**
 	 * Generate the default module name.
-	 * 
+	 *
 	 * @param location
 	 *            The textual location of the name
 	 * @return The default module name.
@@ -2514,7 +2335,7 @@ public class AstFactory
 		result.setType(AstFactory.getAUnresolvedType(classname));
 		return result;
 	}
-	
+
 	public static ANamePatternPair newANamePatternPair(ILexNameToken name, PPattern pattern)
 	{
 		ANamePatternPair pair = new ANamePatternPair();
@@ -2901,6 +2722,17 @@ public class AstFactory
 			List<PDefinition> localDefs, PStm readStatement)
 	{
 		ALetStm result = new ALetStm();
+		initStatement(result, token);
+
+		result.setLocalDefs(localDefs);
+		result.setStatement(readStatement);
+		return result;
+	}
+
+	public static ADefStm newADefStm(ILexLocation token,
+            List<PDefinition> localDefs, PStm readStatement)
+	{
+		ADefStm result = new ADefStm();
 		initStatement(result, token);
 
 		result.setLocalDefs(localDefs);

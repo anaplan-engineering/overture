@@ -10,45 +10,9 @@ import org.overture.ast.patterns.AIgnorePattern;
 import org.overture.ast.patterns.ASeqBind;
 import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ATypeBind;
-import org.overture.ast.statements.AAlwaysStm;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.AAtomicStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACallObjectStm;
-import org.overture.ast.statements.ACallStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AErrorCase;
-import org.overture.ast.statements.AExitStm;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.AReturnStm;
-import org.overture.ast.statements.ASpecificationStm;
-import org.overture.ast.statements.AStartStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.statements.SSimpleBlockStm;
-import org.overture.pog.contexts.AssignmentContext;
-import org.overture.pog.contexts.OpPostConditionContext;
-import org.overture.pog.contexts.POForAllContext;
-import org.overture.pog.contexts.PONameContext;
-import org.overture.pog.contexts.POScopeContext;
-import org.overture.pog.obligation.LetBeExistsObligation;
-import org.overture.pog.obligation.OperationCallObligation;
-import org.overture.pog.obligation.ProofObligationList;
-import org.overture.pog.obligation.SeqMembershipObligation;
-import org.overture.pog.obligation.SetMembershipObligation;
-import org.overture.pog.obligation.StateInvariantObligation;
-import org.overture.pog.obligation.TypeCompatibilityObligation;
-import org.overture.pog.obligation.WhileLoopObligation;
+import org.overture.ast.statements.*;
+import org.overture.pog.contexts.*;
+import org.overture.pog.obligation.*;
 import org.overture.pog.pub.IPOContextStack;
 import org.overture.pog.pub.IPogAssistantFactory;
 import org.overture.pog.pub.IProofObligationList;
@@ -644,6 +608,33 @@ public class PogParamStmVisitor<Q extends IPOContextStack, A extends IProofOblig
 
 	@Override
 	public IProofObligationList caseALetStm(ALetStm node,
+			IPOContextStack question) throws AnalysisException
+	{
+		try
+		{
+			IProofObligationList obligations = new ProofObligationList();
+
+			for (PDefinition localDef : node.getLocalDefs())
+			{
+				// PDefinitionAssistantTC.get
+				question.push(new PONameContext(aF.createPDefinitionAssistant().getVariableNames(localDef)));
+				obligations.addAll(localDef.apply(rootVisitor, question));
+				question.pop();
+			}
+
+			question.push(new POScopeContext());
+			obligations.addAll(node.getStatement().apply(mainVisitor, question));
+			question.pop();
+
+			return obligations;
+		} catch (Exception e)
+		{
+			throw new POException(node, e.getMessage());
+		}
+	}
+
+	@Override
+	public IProofObligationList caseADefStm(ADefStm node,
 			IPOContextStack question) throws AnalysisException
 	{
 		try

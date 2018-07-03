@@ -23,44 +23,25 @@
 
 package org.overture.parser.syntax;
 
-import java.util.List;
-import java.util.Vector;
-
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexLocation;
-import org.overture.ast.lex.Dialect;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.lex.LexToken;
-import org.overture.ast.lex.VDMToken;
+import org.overture.ast.lex.*;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AApplyObjectDesignator;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AFieldObjectDesignator;
-import org.overture.ast.statements.AIdentifierObjectDesignator;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.ANonDeterministicSimpleBlockStm;
-import org.overture.ast.statements.ASpecificationStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.PObjectDesignator;
-import org.overture.ast.statements.PStateDesignator;
-import org.overture.ast.statements.PStm;
+import org.overture.ast.statements.*;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.config.Release;
 import org.overture.config.Settings;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.lex.LexTokenReader;
+
+import java.util.List;
+import java.util.Vector;
 
 /**
  * A syntax analyser to parse statements.
@@ -943,7 +924,7 @@ public class StatementReader extends SyntaxReader
 		return alts;
 	}
 
-	private ALetStm readDefStatement(ILexLocation token)
+	private ADefStm readDefStatement(ILexLocation token)
 			throws ParserException, LexException
 	{
 		checkFor(VDMToken.DEF, 2239, "Expecting 'def'");
@@ -958,7 +939,7 @@ public class StatementReader extends SyntaxReader
 
 		checkFor(VDMToken.IN, 2240, "Expecting 'in' after equals definitions");
 
-		return AstFactory.newALetStm(token, equalsDefs, readStatement());
+		return AstFactory.newADefStm(token, equalsDefs, readStatement());
 	}
 
 	private ASpecificationStm readSpecStatement(ILexLocation token)

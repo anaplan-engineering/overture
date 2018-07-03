@@ -23,112 +23,22 @@
 
 package org.overture.typechecker.utilities;
 
-import java.util.List;
-import java.util.Vector;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.AClassInvariantDefinition;
-import org.overture.ast.definitions.AEqualsDefinition;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
-import org.overture.ast.definitions.AImplicitOperationDefinition;
-import org.overture.ast.definitions.AInstanceVariableDefinition;
-import org.overture.ast.definitions.ALocalDefinition;
-import org.overture.ast.definitions.ARenamedDefinition;
-import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.AValueDefinition;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.AApplyExp;
-import org.overture.ast.expressions.ACasesExp;
-import org.overture.ast.expressions.ADefExp;
-import org.overture.ast.expressions.AExists1Exp;
-import org.overture.ast.expressions.AExistsExp;
-import org.overture.ast.expressions.AFieldExp;
-import org.overture.ast.expressions.AForAllExp;
-import org.overture.ast.expressions.AFuncInstatiationExp;
-import org.overture.ast.expressions.AIfExp;
-import org.overture.ast.expressions.AIotaExp;
-import org.overture.ast.expressions.AIsExp;
-import org.overture.ast.expressions.ALambdaExp;
-import org.overture.ast.expressions.ALetBeStExp;
-import org.overture.ast.expressions.ALetDefExp;
-import org.overture.ast.expressions.AMapCompMapExp;
-import org.overture.ast.expressions.AMapEnumMapExp;
-import org.overture.ast.expressions.AMapletExp;
-import org.overture.ast.expressions.AMkBasicExp;
-import org.overture.ast.expressions.AMkTypeExp;
-import org.overture.ast.expressions.AMuExp;
-import org.overture.ast.expressions.ANarrowExp;
-import org.overture.ast.expressions.ARecordModifier;
-import org.overture.ast.expressions.ASeqCompSeqExp;
-import org.overture.ast.expressions.ASeqEnumSeqExp;
-import org.overture.ast.expressions.ASetCompSetExp;
-import org.overture.ast.expressions.ASetEnumSetExp;
-import org.overture.ast.expressions.ASetRangeSetExp;
-import org.overture.ast.expressions.ASubseqExp;
-import org.overture.ast.expressions.ATupleExp;
-import org.overture.ast.expressions.AVariableExp;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.expressions.SBinaryExp;
-import org.overture.ast.expressions.SBooleanBinaryExp;
-import org.overture.ast.expressions.SUnaryExp;
+import org.overture.ast.definitions.*;
+import org.overture.ast.expressions.*;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexNameSet;
 import org.overture.ast.node.INode;
-import org.overture.ast.patterns.APatternListTypePair;
-import org.overture.ast.patterns.ASeqBind;
-import org.overture.ast.patterns.ASeqMultipleBind;
-import org.overture.ast.patterns.ASetBind;
-import org.overture.ast.patterns.ASetMultipleBind;
-import org.overture.ast.patterns.ATypeBind;
-import org.overture.ast.patterns.ATypeMultipleBind;
-import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.PPattern;
-import org.overture.ast.statements.AAlwaysStm;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.AAtomicStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACallObjectStm;
-import org.overture.ast.statements.ACallStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADurationStm;
-import org.overture.ast.statements.AExitStm;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.APeriodicStm;
-import org.overture.ast.statements.AReturnStm;
-import org.overture.ast.statements.ASporadicStm;
-import org.overture.ast.statements.AStartStm;
-import org.overture.ast.statements.AStopStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.statements.SSimpleBlockStm;
+import org.overture.ast.patterns.*;
+import org.overture.ast.statements.*;
 import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.types.ABracketType;
-import org.overture.ast.types.AFunctionType;
-import org.overture.ast.types.AMapMapType;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.AOptionalType;
-import org.overture.ast.types.AProductType;
-import org.overture.ast.types.ARecordInvariantType;
-import org.overture.ast.types.ASeq1SeqType;
-import org.overture.ast.types.ASeqSeqType;
-import org.overture.ast.types.ASet1SetType;
-import org.overture.ast.types.ASetSetType;
-import org.overture.ast.types.PType;
+import org.overture.ast.types.*;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.assistant.ITypeCheckerAssistantFactory;
+
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Used to find the free variables in a definition, type or expression.
@@ -1102,7 +1012,30 @@ public class FreeVariablesChecker extends QuestionAnswerAdaptor<FreeVarInfo, Lex
 		names.addAll(node.getStatement().apply(this, local));
 		return names;
 	}
-	
+
+	@Override
+	public LexNameSet caseADefStm(ADefStm node, FreeVarInfo info) throws AnalysisException
+	{
+		FreeVarInfo local = info;
+		LexNameSet names = new LexNameSet();
+
+		for (PDefinition d : node.getLocalDefs())
+		{
+			if (d instanceof AExplicitFunctionDefinition)
+			{
+				// ignore
+			}
+			else
+			{
+				local = info.set(new FlatEnvironment(af, d, local.env));
+				names.addAll(d.apply(this, local));
+			}
+		}
+
+		names.addAll(node.getStatement().apply(this, local));
+		return names;
+	}
+
 	@Override
 	public LexNameSet caseAPeriodicStm(APeriodicStm node, FreeVarInfo info) throws AnalysisException
 	{

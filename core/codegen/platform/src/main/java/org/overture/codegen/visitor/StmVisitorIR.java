@@ -21,16 +21,8 @@
  */
 package org.overture.codegen.visitor;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.AClassInvariantDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.definitions.AInheritedDefinition;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.ASelfExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -40,14 +32,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.*;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SSetType;
-import org.overture.codegen.ir.IRInfo;
-import org.overture.codegen.ir.SExpIR;
-import org.overture.codegen.ir.SMultipleBindIR;
-import org.overture.codegen.ir.SObjectDesignatorIR;
-import org.overture.codegen.ir.SPatternIR;
-import org.overture.codegen.ir.SStateDesignatorIR;
-import org.overture.codegen.ir.SStmIR;
-import org.overture.codegen.ir.STypeIR;
+import org.overture.codegen.ir.*;
 import org.overture.codegen.ir.declarations.AVarDeclIR;
 import org.overture.codegen.ir.expressions.AAndBoolBinaryExpIR;
 import org.overture.codegen.ir.expressions.AReverseUnaryExpIR;
@@ -58,6 +43,9 @@ import org.overture.codegen.ir.types.ABoolBasicTypeIR;
 import org.overture.codegen.ir.types.AClassTypeIR;
 import org.overture.codegen.ir.utils.AHeaderLetBeStIR;
 import org.overture.config.Settings;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class StmVisitorIR extends AbstractVisitorIR<IRInfo, SStmIR>
 {
@@ -367,6 +355,25 @@ public class StmVisitorIR extends AbstractVisitorIR<IRInfo, SStmIR>
 
 	@Override
 	public SStmIR caseALetStm(ALetStm node, IRInfo question)
+			throws AnalysisException
+	{
+		ABlockStmIR block = new ABlockStmIR();
+		block.setScoped(question.getStmAssistant().isScoped(node));
+
+		question.getDeclAssistant().setFinalLocalDefs(node.getLocalDefs(), block.getLocalDefs(), question);
+
+		SStmIR stm = node.getStatement().apply(question.getStmVisitor(), question);
+
+		if (stm != null)
+		{
+			block.getStatements().add(stm);
+		}
+
+		return block;
+	}
+
+	@Override
+	public SStmIR caseADefStm(ADefStm node, IRInfo question)
 			throws AnalysisException
 	{
 		ABlockStmIR block = new ABlockStmIR();

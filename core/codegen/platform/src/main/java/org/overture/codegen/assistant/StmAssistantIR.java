@@ -21,19 +21,10 @@
  */
 package org.overture.codegen.assistant;
 
-import java.util.List;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.PStm;
+import org.overture.ast.statements.*;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 import org.overture.codegen.ir.IRInfo;
@@ -42,16 +33,9 @@ import org.overture.codegen.ir.STypeIR;
 import org.overture.codegen.ir.declarations.ADefaultClassDeclIR;
 import org.overture.codegen.ir.declarations.AMethodDeclIR;
 import org.overture.codegen.ir.declarations.AVarDeclIR;
-import org.overture.codegen.ir.statements.AAtomicStmIR;
-import org.overture.codegen.ir.statements.ABlockStmIR;
-import org.overture.codegen.ir.statements.ACaseAltStmStmIR;
-import org.overture.codegen.ir.statements.AElseIfStmIR;
-import org.overture.codegen.ir.statements.AForAllStmIR;
-import org.overture.codegen.ir.statements.AForIndexStmIR;
-import org.overture.codegen.ir.statements.AForLoopStmIR;
-import org.overture.codegen.ir.statements.AIfStmIR;
-import org.overture.codegen.ir.statements.AMetaStmIR;
-import org.overture.codegen.ir.statements.ASuperCallStmIR;
+import org.overture.codegen.ir.statements.*;
+
+import java.util.List;
 
 public class StmAssistantIR extends AssistantBase
 {
@@ -126,6 +110,11 @@ public class StmAssistantIR extends AssistantBase
 	public boolean isScoped(ALetStm let)
 	{
 		return appearsInRightContext(let);
+	}
+
+	public boolean isScoped(ADefStm def)
+	{
+		return appearsInRightContext(def);
 	}
 
 	private boolean appearsInRightContext(PStm block)

@@ -3,26 +3,7 @@ package org.overture.interpreter.utilities.statement;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.node.INode;
-import org.overture.ast.statements.AAlwaysStm;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.AAtomicStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADurationStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.ALetStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.statements.SSimpleBlockStm;
+import org.overture.ast.statements.*;
 import org.overture.interpreter.assistant.IInterpreterAssistantFactory;
 
 /***************************************
@@ -215,6 +196,26 @@ public class StatementFinder extends QuestionAnswerAdaptor<Integer, PStm>
 
 	@Override
 	public PStm caseALetStm(ALetStm stm, Integer lineno)
+			throws AnalysisException
+	{
+		PStm found = findStatementBaseCase(stm, lineno);
+		if (found != null)
+		{
+			return found;
+		}
+
+		found = af.createPDefinitionAssistant().findStatement(stm.getLocalDefs(), lineno);
+		if (found != null)
+		{
+			return found;
+		}
+
+		return stm.getStatement().apply(THIS, lineno); // StmAssistantInterpreter.findStatement(stm.getStatement(),
+														// lineno);
+	}
+
+	@Override
+	public PStm caseADefStm(ADefStm stm, Integer lineno)
 			throws AnalysisException
 	{
 		PStm found = findStatementBaseCase(stm, lineno);
