@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+# Have to use a var for pwd as it needs escaping
+cat <<EOT >> ~/.m2/settings.xml
+<settings>
+    <servers>
+        <server>
+            <id>anaplan-develop</id>
+            <username>$ARTIFACTORY_USERNAME</username>
+            <password>\${deploy.pwd}</password>
+        </server>
+    </servers>
+</settings>  
+EOT

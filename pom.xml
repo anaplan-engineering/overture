@@ -2,11 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- Needed to make deployment work -->
+  <!-- Use Anaplan binary repo
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
     <version>7</version>
   </parent>
+  -->
 
 	<prerequisites>
     <maven>3.0</maven>
@@ -456,4 +458,11 @@ http://mojo.codehaus.org/versions-maven-plugin/
   </organization>
 
   <inceptionYear>2008</inceptionYear>
+
+  <distributionManagement>
+    <repository>
+      <id>anaplan-develop</id>
+      <url>https://artifacts.anaplan-np.net/artifactory/anaplan-develop</url>
+    </repository>
+  </distributionManagement>
 </project>

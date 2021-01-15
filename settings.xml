@@ -1,0 +1,18 @@
+<settings>
+    <servers>
+        <server>
+            <id>anaplan-develop</id>
+            <username></username>
+            <password>${deploy.pwd}</password>
+        </server>
+    </servers>
+</settings>  
+<settings>
+    <servers>
+        <server>
+            <id>anaplan-develop</id>
+            <username></username>
+            <password>${deploy.pwd}</password>
+        </server>
+    </servers>
+</settings>  
